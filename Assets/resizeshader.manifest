@@ -1,0 +1,17 @@
+ManifestFileVersion: 0
+CRC: 3620181949
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 8ee04450a76a986a77029030a6f5d2c2
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 68c985bf88fecc38b460cdb825182138
+HashAppended: 0
+ClassTypes:
+- Class: 48
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ResizeShader.shader
+Dependencies: []
