@@ -13,121 +13,110 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
+using HutongGames.Utility;
+using HutongGames.Extensions;
+using Satchel;
 using Language;
 
 namespace PaperKnight
 {
     public partial class PaperKnight : Mod
     {
-        public const string Version = "0.1.1.0";
+        public const string Version = "0.3.1.0";
         public override string GetVersion() => PaperKnight.Version;
         internal static PaperKnight Instance;
-
-        internal List<GameObject> enemies = new List<GameObject>();
-        internal AssetBundle ab = null; 
+        private FlippableList flippables = new FlippableList();
+        private bool flipControllerMutex = false;
+        private List<FlipController> betweenSceneFCs = new List<FlipController>();
 
         public override void Initialize()
         {
-            LoadBundle();
             Instance = this;
 
             ModHooks.TakeHealthHook += KnightDamaged;
             ModHooks.OnEnableEnemyHook += EnemyEnabled;
-            ModHooks.SceneChanged += OnSceneChange;
+            ModHooks.BeforeSceneLoadHook += BeforeSceneChange;
+
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnActiveSceneChange;
 
             On.HeroController.Start += HeroStart;
+            On.HealthManager.Die += OnDie;
             On.HealthManager.TakeDamage += OnTakeDamage;
+
+            On.KnightHatchling.Awake += OnHatchlingAwake;
+            On.PlayMakerFSM.Awake += OnFSMAwake;
+            On.HeroController.StartCyclone += OnCyclone;
+            On.HeroController.EndCyclone += EndCyclone;
+
+            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += OnIntCompare;
+            On.EnemyDreamnailReaction.RecieveDreamImpact += OnDreamNail;
         }
 
-        private void LoadBundle()
+        private void OnDreamNail(On.EnemyDreamnailReaction.orig_RecieveDreamImpact orig, EnemyDreamnailReaction self)
         {
-            string bundleN = "resizeshader";
-            Assembly asm = Assembly.GetExecutingAssembly();
-            foreach (string res in asm.GetManifestResourceNames())
+            FlipController flip = self.gameObject.GetComponent<FlipController>();
+            if (flip)
+                flip.TriggerHit();
+
+            orig(self);
+        }
+
+        private void OnCyclone(On.HeroController.orig_StartCyclone orig, HeroController self)
+        {
+            HeroController.instance.GetComponent<FlipController>().TriggerConstant();
+            orig(self);
+        }
+
+        private void EndCyclone(On.HeroController.orig_EndCyclone orig, HeroController self)
+        {
+            HeroController.instance.GetComponent<FlipController>().ResetScale();
+            orig(self);
+        }
+
+
+
+
+
+        private void OnFSMAwake(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
+        {
+            orig(self);
+
+            if (flipControllerMutex)
+                return;
+            flipControllerMutex = true;
+
+            foreach (string flipName in FlippableList.objectFlipList)
             {
-                using (Stream s = asm.GetManifestResourceStream(res))
-                {
-                    if (s == null) continue;
-                    string bundleName = Path.GetExtension(res).Substring(1);
-                    if (bundleName != bundleN) continue;
-                    Log("Loading bundle " + bundleName);
-                    // Allows us to directly load from stream.
-                    ab = AssetBundle.LoadFromStream(s); // Store this somewhere you can access again.
-                }
-            }
-        }
+                string goName = CleanName(self.gameObject.name);
 
-
-
-
-        private void OnSceneChange(string obj)
-        {
-            enemies.Clear();
-
-            // Update Knight's FlipController
-            if (GlobalSaveData.knightEnabled && !HeroController.instance.gameObject.GetComponent<FlipController>())
-                HeroController.instance.gameObject.AddComponent<FlipController>();
-            else if (GlobalSaveData.knightEnabled && !HeroController.instance.gameObject.GetComponent<FlipController>().enabled)
-                HeroController.instance.gameObject.GetComponent<FlipController>().enabled = true;
-            else if (!GlobalSaveData.knightEnabled && HeroController.instance.gameObject.GetComponent<FlipController>())
-                HeroController.instance.gameObject.GetComponent<FlipController>().enabled = false;
-        }
-
-        
-
-
-        private int KnightDamaged(int damage)
-        {
-            if (GlobalSaveData.knightEnabled)
-            {
-                GameObject hero = HeroController.instance.gameObject;
-                if (!hero.GetComponent<FlipController>())
-                    hero.AddComponent<FlipController>();
-                hero.GetComponent<FlipController>().TriggerHit();
-            }
-
-            return damage;
-        }
-
-        private void OnTakeDamage(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
-        {
-            if (GlobalSaveData.enemiesEnabled)
-            {
-                GameObject obj = self.gameObject;
-                if (obj)
-                    if (hitInstance.AttackType.Equals(AttackTypes.Nail) || hitInstance.AttackType.Equals(AttackTypes.NailBeam))
-                        obj.GetComponent<FlipController>().TriggerHit();
+                if (goName.Equals(CleanName(flipName)))
+                    CreateSpriteObject(self.gameObject, false);
             }
 
-            orig(self, hitInstance);
+            flipControllerMutex = false;
         }
 
+        private void OnHatchlingAwake(On.KnightHatchling.orig_Awake orig, KnightHatchling self)
+        {
+            orig(self);
+            if (flipControllerMutex) 
+                return;
+            flipControllerMutex = true;
+            CreateSpriteObject(self.gameObject, false);
+            flipControllerMutex = false;
+        }
 
-
+        private void OnIntCompare(On.HutongGames.PlayMaker.Actions.IntCompare.orig_OnEnter orig, HutongGames.PlayMaker.Actions.IntCompare self)
+        {
+            if (self.Fsm.Name.Contains("Hatchling Spawn") && self.integer2.Value == 4)
+                self.integer2.Value = 8;
+            orig(self);
+        }
 
         private void HeroStart(On.HeroController.orig_Start orig, HeroController self)
         {
-            if (GlobalSaveData.knightEnabled)
-            {
-                GameObject hero = self.gameObject;
-                if (!hero.GetComponent<FlipController>())
-                    hero.AddComponent<FlipController>();
-                hero.GetComponent<FlipController>().direction = hero.transform.localScale.x > 0 ? 1 : -1;
-                hero.GetComponent<FlipController>().spinGoal = hero.transform.localScale.x > 0 ? 1 : -1;
-
-                /*
-                if (!hero.GetComponent<tk2dSpriteAnimator>())
-                    hero.AddComponent<tk2dSpriteAnimator>();
-                Shader resizeShader = GameManager.Instantiate(ab.LoadAsset<Shader>("resizeshader"));
-                Shader s = Shader.Find("Sprites/Default");
-                Material m = new Material(s);
-                foreach (tk2dSpriteDefinition sprite in hero.GetComponent<tk2dSpriteAnimator>().Sprite.Collection.spriteDefinitions)
-                    sprite.material = m;
-                hero.GetComponent<FlipController>().mat = m;
-                */
-            }
-
             orig(self);
+            CreateSpriteObject(self.gameObject, false);
         }
 
         public bool EnemyEnabled(GameObject enemy, bool isDead)
@@ -135,24 +124,152 @@ namespace PaperKnight
             if (isDead)
                 return isDead;
 
-            if (PaperKnight.GlobalSaveData.enemiesEnabled)
-                enemy.AddComponent<FlipController>();
-            enemies.Add(enemy);
-            enemy.GetComponent<FlipController>().direction = enemy.transform.localScale.x > 0 ? 1 : -1;
-            enemy.GetComponent<FlipController>().spinGoal = enemy.transform.localScale.x > 0 ? 1 : -1;
+            if (enemy.name.Equals("Head") && enemy.transform.parent.gameObject.name.Contains("False Knight"))
+                return false;
 
-            /*
-            if (!enemy.GetComponent<tk2dSpriteAnimator>())
-                enemy.AddComponent<tk2dSpriteAnimator>();
-            //Shader resizeShader = ab.LoadAsset<Shader>("resizeshader");
-            Shader s = Shader.Find("Sprites/Default");
-            Material m = new Material(s);
-            foreach (tk2dSpriteDefinition sprite in enemy.GetComponent<tk2dSpriteAnimator>().Sprite.Collection.spriteDefinitions)
-                sprite.material = m;
-            enemy.GetComponent<FlipController>().mat = m;
-            */
-
+            CreateSpriteObject(enemy, true);
             return false;
+        }
+
+        private string BeforeSceneChange(string arg)
+        {
+            foreach (FlipController fc in Resources.FindObjectsOfTypeAll<FlipController>())
+            {
+                if (fc.gameObject.name != "Knight")
+                {
+                    betweenSceneFCs.Add(fc);
+                    fc.enabled = false;
+                }
+            }
+
+            return arg;
+        }
+
+        private void OnActiveSceneChange(Scene arg0, Scene arg1)
+        {
+            foreach (FlipController fc in betweenSceneFCs)
+            {
+                if (fc.gameObject)
+                    fc.enabled = true;
+            }
+            betweenSceneFCs.Clear();
+
+            if (arg0.name != null)
+            {
+                List<GameObject> gameObjectsInScene = arg1.GetAllGameObjects();
+                foreach (GameObject go in gameObjectsInScene)
+                {
+                    if (!go.activeSelf)
+                        continue;
+
+                    if (CleanName(go.name).Equals(CleanName("Grub")) || CleanName(go.name).Contains(CleanName("Grub Saved")))
+                    {
+                        CreateSpriteObject(go, false);
+                        continue;
+                    }
+
+                    foreach (string flipName in FlippableList.sceneFlipList)
+                    {
+                        string[] flipSplit = flipName.Split('/');
+                        string sceneName = CleanName(flipSplit[0]);
+                        string objName = CleanName(flipSplit[flipSplit.Length - 1]);
+                        string parent = CleanName(flipSplit[flipSplit.Length - 2]);
+
+                        if (!CleanName(arg1.name).Equals(CleanName(sceneName)) || !CleanName(go.name).Equals(CleanName(objName)))
+                            continue;
+
+                        if (CleanName(parent) == CleanName(sceneName) || (go.transform.parent && CleanName(parent).Equals(CleanName(go.transform.parent.gameObject.name))))
+                            CreateSpriteObject(go, false);
+                    }
+                }
+            }
+        }
+
+
+
+
+
+        private int KnightDamaged(int damage)
+        {
+            GameObject hero = HeroController.instance.gameObject;
+            hero.GetComponent<FlipController>().TriggerHit();
+
+            return damage;
+        }
+
+        private void OnTakeDamage(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
+        {
+            orig(self, hitInstance);
+
+            GameObject obj = self.gameObject;
+            if (obj && obj.GetComponent<FlipController>())
+                obj.GetComponent<FlipController>().TriggerHit();
+        }
+
+        private void OnDie(On.HealthManager.orig_Die orig, HealthManager self, float? attackDirection, AttackTypes attackType, bool ignoreEvasion)
+        {
+            //if (self.gameObject.name != "Knight")
+                //self.gameObject.GetComponent<FlipController>().enabled = false;
+            orig(self, attackDirection, attackType, ignoreEvasion);
+        }
+
+
+
+
+
+        public string CleanName(string name)
+        {
+            string output = name.Trim();
+            output = output.ToLower();
+            if (output.IndexOf('(') > 0)
+                output = output.Substring(0, output.IndexOf('('));
+            return output.Trim();
+        }
+
+        public void CreateSpriteObject(GameObject obj, bool isEnemy)
+        {
+            if (obj.GetComponent<FlipController>() && !obj.GetComponent<FlipController>().SpriteObject)
+                while (obj.RemoveComponent<FlipController>()) { }
+
+            GameObject clone;
+            if (obj.name == "Knight")
+            {
+                HeroController.instance.gameObject.SetActive(false);
+                clone = obj.createCompanionFromPrefab(false);
+                HeroController.instance.gameObject.SetActive(true);
+                clone.RemoveComponent<HeroController>();
+                clone.RemoveComponent<HeroAnimationController>();
+                clone.RemoveComponent<HeroAudioController>();
+                clone.RemoveComponent<ConveyorMovementHero>();
+            } else clone = obj.createCompanionFromPrefab(false);
+
+            if (!obj.GetComponent<FlipController>())
+                obj.AddComponent<FlipController>();
+            if (!obj.GetComponent<FlipController>().SpriteObject)
+                obj.GetComponent<FlipController>().CreateSpriteObject(clone);
+            obj.GetComponent<FlipController>().isEnemy = isEnemy;
+            
+
+            obj.GetComponent<FlipController>().direction = obj.transform.localScale.x > 0 ? 1 : -1;
+            obj.GetComponent<FlipController>().spinGoal = obj.transform.localScale.x > 0 ? 1 : -1;
+            obj.GetComponent<FlipController>().enabled = true;
+
+            if (FlippableList.flippableChildren.ContainsKey(obj.name))
+            {
+                foreach (string childName in FlippableList.flippableChildren[obj.name])
+                {
+                    Transform spriteChildTransform = obj.GetComponent<FlipController>().SpriteObject.transform.Find(childName);
+                    Transform mainChildTransform = obj.transform.Find(childName);
+                    if (spriteChildTransform && mainChildTransform)
+                    {
+                        Log("Adding " + spriteChildTransform.name + " to SpriteChildren of " + obj.name);
+                        obj.GetComponent<FlipController>().AddSpriteChild(spriteChildTransform.gameObject, mainChildTransform.gameObject);
+                        spriteChildTransform.gameObject.SetActive(true);
+                        mainChildTransform.gameObject.GetComponent<MeshRenderer>().forceRenderingOff = true;
+                        spriteChildTransform.gameObject.GetComponent<MeshRenderer>().forceRenderingOff = false;
+                    }
+                }
+            }
         }
     }
 }

@@ -1,0 +1,32 @@
+﻿Changes to make:
+
+- Enemies spinning can cause small gameplay changes (Dung defender throwing backwards, etc.)
+- Add spin on dream nail to NPCs
+- Add missed NPCs to list (Junk Pit Godseeker variations, main GodSeeker dude, etc.)
+- False Knight's head disappears on each hit
+- On Knight death, the knight simply stands there and then vanishes once shade spawns ???
+- When spinning False Knight, damage hitbox becomes weird
+- Sprite Objects persist after loading a new scene. 
+- Divine body disappears when leaving tent.
+- Painting Nailsmith doesn't spin
+- Flukenest, Weaverlings, and Grimmchild should cause spinning
+
+
+
+Things to change or look for in P5:
+- Some enemy corpses should still be spinnable before they explode or disappear. e.g. bosses like hornet, dung boi, moss charger, etc
+- Lots of stuff in #general-voice-chat and Robot's video
+
+
+
+
+TESTING - Grimmchild doesn't disappear when fighting Grimm
+TESTING - Knight warping into dream graphical issues
+
+FIXED - add white flash when hit
+FIXED - Need enemies to spin on any damage
+FIXED - False Knight duplicate head is funny
+FIXED - Remove the ability to spin enemies with nail without actually damaging the enemy
+FIXED - second nailmaster doesn't spin in Mato + Oro fight
+FIXED - Divine can't give charms
+FIXED - Stag double on bell

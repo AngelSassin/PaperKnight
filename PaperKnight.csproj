@@ -52,6 +52,9 @@
     <Reference Include="PlayMaker">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\PlayMaker.dll</HintPath>
     </Reference>
+    <Reference Include="Satchel">
+      <HintPath>..\..\..\..\..\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\Satchel\Satchel.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -81,6 +84,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SpriteMirror.cs" />
+    <Compile Include="FlippableList.cs" />
     <Compile Include="ModMenu.cs" />
     <Compile Include="FlipController.cs" />
     <Compile Include="PaperKnightSettings.cs" />
@@ -88,10 +93,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\resizeshader" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shaders\ResizeShader.shader" />
+    <Content Include="Bugs.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

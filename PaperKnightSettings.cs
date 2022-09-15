@@ -34,10 +34,6 @@ namespace PaperKnight
 
     public class CustomGlobalSaveData
     {
-        public bool enemiesEnabled = true;
-        public bool knightEnabled = true;
-        public bool minionsEnabled = true;
-        public bool npcsEnabled = true;
         public bool unlimitedSpinning = false;
     }
 }

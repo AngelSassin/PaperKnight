@@ -15,6 +15,17 @@ namespace PaperKnight
 
             entries.Add(new IMenuMod.MenuEntry
             {
+                Name = "Unlimited Spinning!",
+                Description = "There is no speed cap to how fast enemies can spin when hit repeatedly.",
+                Values = new string[] { "On", "Off" },
+                Saver = (i) => GlobalSaveData.unlimitedSpinning = i == 0,
+                Loader = () => GlobalSaveData.unlimitedSpinning ? 0 : 1
+            });
+
+            /*
+             
+            entries.Add(new IMenuMod.MenuEntry
+            {
                 Name = "Toggle Paper Knight:",
                 Description = "Allow the knight to spin like paper. This will update on room change.",
                 Values = new string[] { "On", "Off" },
@@ -40,6 +51,7 @@ namespace PaperKnight
                 Loader = () => GlobalSaveData.minionsEnabled ? 0 : 1
             });
 
+      
             entries.Add(new IMenuMod.MenuEntry
             {
                 Name = "Toggle Paper NPCs:",
@@ -48,15 +60,10 @@ namespace PaperKnight
                 Saver = (i) => GlobalSaveData.npcsEnabled = i == 0,
                 Loader = () => GlobalSaveData.npcsEnabled ? 0 : 1
             });
+            
+            */
 
-            entries.Add(new IMenuMod.MenuEntry
-            {
-                Name = "Unlimited Spinning!",
-                Description = "There is no speed cap to how fast enemies can spin when hit repeatedly.",
-                Values = new string[] { "On", "Off" },
-                Saver = (i) => GlobalSaveData.unlimitedSpinning = i == 0,
-                Loader = () => GlobalSaveData.unlimitedSpinning ? 0 : 1
-            });
+            
 
             return entries;
         }
