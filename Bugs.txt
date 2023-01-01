@@ -1,32 +1,75 @@
-﻿Changes to make:
+﻿Major Changes:
+- SpriteObjects are now child objects of the original GameObject. Watch out for extra weirdness of sprites.
+- Sprites will now mirror the animation of the original GameObject by setting the current clip and current frame.
+- SpriteObjects of the original GameObject and its children all attempt to be visible when its mirror should be visible.
+- Added some means to entirely stop spinning in any circumstance I want. Currently, this is only on False Knight's rage.
 
-- Enemies spinning can cause small gameplay changes (Dung defender throwing backwards, etc.)
-- Add spin on dream nail to NPCs
-- Add missed NPCs to list (Junk Pit Godseeker variations, main GodSeeker dude, etc.)
-- False Knight's head disappears on each hit
-- On Knight death, the knight simply stands there and then vanishes once shade spawns ???
-- When spinning False Knight, damage hitbox becomes weird
-- Sprite Objects persist after loading a new scene. 
-- Divine body disappears when leaving tent.
-- Painting Nailsmith doesn't spin
-- Flukenest, Weaverlings, and Grimmchild should cause spinning
+Bugs addressed:
+- Knight warping into dream now shouldn't use glitchy sprite
+- On Knight death, the knight no longer just stands there as the shade spawns
+- NPCs now spin when struck with the dream nail
+- Enemies spinning should no longer cause small gameplay changes (Dung defender throwing backwards, etc.) 
+- Enemies should go invisible when appropriate
+- Enemies and Knight now correctly use SpriteFlash
+- Sprite Objects no longer persist after loading a new scene.
+- Divine's body now spins, gives charms, and doesn't disappear when you leave the tent
+- Grimm stagger bat doesn't spin
+- Grimmchild doesn't disappear when fighting Grimm
+- Grimm duplicates during his bow
+- False Knight hitboxes are no longer weird
+- False Knight's head now spins with the body
+- False Knight's head no longer disappears on each hit
+- Soul Master now vanish after dives 
+- Elder Hu now vanish during his attack
+- Greenpath Zote and Vengefly now spin
+
+Things that may have changed but weren't specifically targeted:
+- Some Godseeker variants do not spin in P5
+- Ending cutscenes don't handle sprites correctly 
 
 
 
-Things to change or look for in P5:
-- Some enemy corpses should still be spinnable before they explode or disappear. e.g. bosses like hornet, dung boi, moss charger, etc
-- Lots of stuff in #general-voice-chat and Robot's video
 
 
 
 
-TESTING - Grimmchild doesn't disappear when fighting Grimm
-TESTING - Knight warping into dream graphical issues
 
-FIXED - add white flash when hit
-FIXED - Need enemies to spin on any damage
-FIXED - False Knight duplicate head is funny
-FIXED - Remove the ability to spin enemies with nail without actually damaging the enemy
-FIXED - second nailmaster doesn't spin in Mato + Oro fight
-FIXED - Divine can't give charms
-FIXED - Stag double on bell
+
+- Painting Nailsmith now spins
+
+
+- Flukenest, Weaverlings, and Grimmchild now cause spinning
+
+
+
+
+
+Corpse Giant Buzzer Col(Clone)
+
+Corpse Big Fly 1(Clone)
+Corpse Big Fly Burster
+
+Corpse Hornet GG
+
+Corpse Jellyfish ????????? Gorb the Mind??
+
+Corpse Dung Defender(Clone)
+
+Corpse Mega Moss Charger(Clone)
+Moss Charger Nibbler (3)
+Moss Charger Nibbler (2)
+Moss Charger Nibbler (1)
+Moss Charger Nibbler
+
+Corpse Mage Knight
+
+Corpse Mega Zombie Beam Miner Esc(Clone)
+
+Corpse Mage Lord 2(Clone)
+
+Corpse Infected Knight(Clone)
+
+Corpse Sheo(Clone)
+
+Corpse Hive Knight(Clone)
+

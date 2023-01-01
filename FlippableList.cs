@@ -60,7 +60,7 @@ namespace PaperKnight
             "Ruins1_04/Nailsmith Cliff NPC",
             "GG_Waterways/Nailsmith_Corpse",
             "Room_Nailmaster_02/NM Parent/Painting/Nailsmith Painted NPC",
-            "Room_Nailmaster_02/NM Parent/Painting/Nailsmith Modelling NPC",
+            "Room_Nailmaster_02/NM Parent/Modelling/Nailsmith Modelling NPC",
 
             "Room_Shop/Basement Closed/Sly Shop",                       // Sly
             "Room_Sly_Storeroom/Sly Basement NPC",
@@ -89,6 +89,7 @@ namespace PaperKnight
             "Crossroads_50/Tiso Lake NPC",
             "Room_Colossem_02/Tiso Col NPC",
             "Deepnest_East_07/tiso_corpse",
+            "GG_Brooding_Mawlek_V/Battle Scene/Tiso Boss",
 
             "Fungus1_20_v02/Zote Death",                                // Zote the Mighty
             "Fungus1_20_v02/Zote Buzzer Convo(Clone)",
@@ -195,6 +196,8 @@ namespace PaperKnight
             "Room_Queen/queen_0023_a",
             "Room_Queen/queen_0022_a",
 
+            "Fungus1_20_v02/_Enemies/Giant Buzzer",                     // Vengefly King
+            "Crossroads_10/Mace Head Bug",                              // Mace Bug
             "Room_Charm_Shop/Charm Slug",                               // Charm Lover Salubra
             "Room_Ouiji/Jiji NPC",                                      // Confessor Jiji
             "Grimm_Divine/Divine NPC",                                  // Divine
@@ -244,35 +247,48 @@ namespace PaperKnight
             "RestingGrounds_08/Ghost thistlewind",
 
             // Flippable scene Objects (zote skull?, Others???)
-
-
         };
 
-        
 
-        internal static string[] objectFlippables = new string[] { // HOLY CRAP REPLACE THESE WITH NPCS AND MINIONS AND ANYTHING ELSE YA WANNA FLIP
+
+        internal static string[] objectFlippables = new string[] { // Persisting Objects and Corpses that activate at death
             // Charm Minions
             "Weaverling",
             "Grimmchild",
 
 
+            // Corpses
+            "Mace Head Bug",
+            //"Zote Buzzer Encounter",
+            "Zote Buzzer Convo",
+        };
 
-            // Flippable Objects (Mace Bug??, )
+        internal static string[] preventFlippables = new string[] {
+            "False Knight New/Rage Begin",
+            "False Knight Dream/Rage Begin"
+        };
+
+        internal static string[] enableFlippables = new string[] {
+            "False Knight New/Stun Start",
+            "False Knight New/Rage End",
+            "False Knight New/JA Antic 2", // Final time when rage ends.
+            "False Knight Dream/Stun Start",
+            "False Knight Dream/Rage End",
+            "False Knight Dream/JA Antic 2", // Final time when rage ends.
         };
 
         internal static string[] forbiddenTags = {
-        
             // Charm Minions
             "Weaverling",
             "Grimmchild",
             "Knight Hatchling"
-
-
         };
 
         internal static List<string> sceneFlipList = new List<string>(sceneFlippables);
         internal static List<string> objectFlipList = new List<string>(objectFlippables);
         internal static List<string> forbiddenTagList = new List<string>(forbiddenTags);
+        internal static List<string> preventFlipList = new List<string>(preventFlippables);
+        internal static List<string> enableFlipList = new List<string>(enableFlippables);
         internal static GameObject[] nailAttacks = null;
 
         public static GameObject[] buildNailAttacks()
